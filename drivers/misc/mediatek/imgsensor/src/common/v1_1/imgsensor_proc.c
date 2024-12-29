@@ -1,6 +1,15 @@
-// SPDX-License-Identifier: GPL-2.0
 /*
- * Copyright (c) 2019 MediaTek Inc.
+ * Copyright (C) 2017 MediaTek Inc.
+ * Copyright (C) 2021 XiaoMi, Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See http://www.gnu.org/licenses/gpl-2.0.html for more details.
  */
 
 #include <linux/fs.h>
@@ -362,6 +371,7 @@ static ssize_t CAMERA_HW_Reg_Debug5(struct file *file, const char *buffer,
 	return count;
 }
 
+#ifndef _XIAOMI_
 static ssize_t CAMERA_HW_Reg_Debug6(struct file *file, const char *buffer,
 					size_t count, loff_t *data)
 {
@@ -534,6 +544,7 @@ static ssize_t CAMERA_HW_Reg_Debug8(struct file *file, const char *buffer,
 
 	return count;
 }
+#endif
 
 /* Camera information */
 static int subsys_camera_info_read(struct seq_file *m, void *v)
@@ -622,6 +633,7 @@ static const struct file_operations fcamera_proc_fops5 = {
 	.write = CAMERA_HW_Reg_Debug5
 };
 
+#ifndef _XIAOMI_
 static const struct file_operations fcamera_proc_fops6 = {
 	.owner = THIS_MODULE,
 	.read = seq_read,
@@ -642,6 +654,7 @@ static const struct file_operations fcamera_proc_fops8 = {
 	.open = proc_camsensor_open,
 	.write = CAMERA_HW_Reg_Debug8
 };
+#endif
 
 static const struct file_operations fcamera_proc_fops_set_pdaf_type = {
 	.owner = THIS_MODULE,
@@ -665,9 +678,11 @@ enum IMGSENSOR_RETURN imgsensor_proc_init(void)
 	proc_create("driver/camsensor3", 0000, NULL, &fcamera_proc_fops3);
 	proc_create("driver/camsensor4", 0000, NULL, &fcamera_proc_fops4);
 	proc_create("driver/camsensor5", 0000, NULL, &fcamera_proc_fops5);
+#ifndef _XIAOMI_
 	proc_create("driver/camsensor6", 0000, NULL, &fcamera_proc_fops6);
 	proc_create("driver/camsensor7", 0000, NULL, &fcamera_proc_fops7);
 	proc_create("driver/camsensor8", 0000, NULL, &fcamera_proc_fops8);
+#endif
 	proc_create("driver/pdaf_type", 0000, NULL,
 				&fcamera_proc_fops_set_pdaf_type);
 	proc_create("driver/imgsensor_status_info", 0000, NULL,
