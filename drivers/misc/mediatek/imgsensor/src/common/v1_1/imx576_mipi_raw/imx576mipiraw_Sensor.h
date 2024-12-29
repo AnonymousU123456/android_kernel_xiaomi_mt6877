@@ -1,6 +1,14 @@
-/* SPDX-License-Identifier: GPL-2.0 */
 /*
- * Copyright (c) 2019 MediaTek Inc.
+ * Copyright (C) 2016 MediaTek Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See http://www.gnu.org/licenses/gpl-2.0.html for more details.
  */
 
 #ifndef _IMX576MIPI_SENSOR_H
@@ -53,7 +61,7 @@ struct imgsensor_struct {
 
 	kal_uint16 current_fps; /* current max fps */
 	kal_bool   autoflicker_en; /* record autoflicker enable or disable */
-	kal_uint32 test_pattern; /* record test pattern mode or not */
+	kal_bool test_pattern; /* record test pattern mode or not */
 	enum MSDK_SCENARIO_ID_ENUM current_scenario_id;/* current scenario id */
 	/* ihdr mode 0: disable, 1: ihdr, 2:mVHDR, 9:zigzag */
 	kal_uint8  ihdr_mode;

@@ -1,6 +1,15 @@
-// SPDX-License-Identifier: GPL-2.0
 /*
- * Copyright (c) 2019 MediaTek Inc.
+ * Copyright (C) 2015 MediaTek Inc.
+ * Copyright (C) 2021 XiaoMi, Inc.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
  */
 
 /*****************************************************************************
@@ -812,10 +821,6 @@ static kal_uint16 gain2reg(const kal_uint16 gain)
 	for (i = 0; i < IMX258MIPI_MaxGainIndex; i++) {
 		if (gain <= IMX258MIPI_sensorGainMapping[i][0])
 			break;
-	}
-	if (i >= IMX258MIPI_MaxGainIndex) {
-		pr_debug("warning! use max sensor gain");
-		return IMX258MIPI_sensorGainMapping[IMX258MIPI_MaxGainIndex - 1][1];
 	}
 	if (gain != IMX258MIPI_sensorGainMapping[i][0])
 		LOG_INF("Gain mapping don't correctly:%d %d\n", gain,

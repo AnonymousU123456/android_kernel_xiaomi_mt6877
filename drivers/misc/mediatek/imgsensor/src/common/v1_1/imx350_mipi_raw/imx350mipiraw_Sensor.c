@@ -1,6 +1,15 @@
-// SPDX-License-Identifier: GPL-2.0
 /*
- * Copyright (c) 2019 MediaTek Inc.
+ * Copyright (C) 2016 MediaTek Inc.
+ * Copyright (C) 2021 XiaoMi, Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See http://www.gnu.org/licenses/gpl-2.0.html for more details.
  */
 
 /*****************************************************************************
@@ -160,7 +169,7 @@ static struct imgsensor_info_struct imgsensor_info = {
 	.normal_video = {	/*data rate 1499.20 Mbps/lane */
 		.pclk = 801600000,
 		.linelength = 8704,
-		.framelength = 3068,
+		.framelength = 3064,
 		 .startx = 0,
 		 .starty = 0,
 		 .grabwindow_width = 5184,
@@ -243,7 +252,7 @@ static struct imgsensor_struct imgsensor = {
 	/* auto flicker enable: KAL_FALSE for disable auto flicker,
 	 * KAL_TRUE for enable auto flicker
 	 */
-	.test_pattern = 0,
+	.test_pattern = KAL_FALSE,
 
 	/* current scenario id */
 	.current_scenario_id = MSDK_SCENARIO_ID_CAMERA_PREVIEW,
@@ -253,7 +262,7 @@ static struct imgsensor_struct imgsensor = {
 
 /* Sensor output window information */
 static struct SENSOR_WINSIZE_INFO_STRUCT imgsensor_winsize_info[10] = {
-	{5184, 3880, 0, 0, 5184, 3872, 2592, 1936,
+	{5184, 3880, 0, 0, 5184, 3880, 2592, 1936,
 	0000, 0000, 2592, 1936, 0, 0, 2592, 1936},	/* Preview */
 	{5184, 3880, 0, 0, 5184, 3880, 5184, 3880,
 	0000, 0000, 5184, 3880, 0, 0, 5184, 3880},	/* capture */
@@ -3389,36 +3398,17 @@ static void hs_video_setting(void)
 	zvhdr_setting();
 }
 
-static kal_uint32 set_test_pattern_mode(kal_uint32 modes,
-	struct SET_SENSOR_PATTERN_SOLID_COLOR *pdata)
+static kal_uint32 set_test_pattern_mode(kal_bool enable)
 {
-	kal_uint16 Color_R, Color_Gr, Color_Gb, Color_B;
+	LOG_INF("enable: %d\n", enable);
 
-	LOG_INF("modes: %d\n", modes);
-	if (modes) {
-		write_cmos_sensor(0x0601, modes);
-		if (modes == 1 && (pdata != NULL)) { //Solid Color
-			LOG_INF("R=0x%x,Gr=0x%x,B=0x%x,Gb=0x%x",
-				pdata->COLOR_R, pdata->COLOR_Gr, pdata->COLOR_B, pdata->COLOR_Gb);
-			Color_R = (pdata->COLOR_R >> 22) & 0x3FF; //10bits depth color
-			Color_Gr = (pdata->COLOR_Gr >> 22) & 0x3FF;
-			Color_B = (pdata->COLOR_B >> 22) & 0x3FF;
-			Color_Gb = (pdata->COLOR_Gb >> 22) & 0x3FF;
-			write_cmos_sensor(0x0602, (Color_R >> 8) & 0x3);
-			write_cmos_sensor(0x0603, Color_R & 0xFF);
-			write_cmos_sensor(0x0604, (Color_Gr >> 8) & 0x3);
-			write_cmos_sensor(0x0605, Color_Gr & 0xFF);
-			write_cmos_sensor(0x0606, (Color_B >> 8) & 0x3);
-			write_cmos_sensor(0x0607, Color_B & 0xFF);
-			write_cmos_sensor(0x0608, (Color_Gb >> 8) & 0x3);
-			write_cmos_sensor(0x0609, Color_Gb & 0xFF);
-		}
-	}
+	if (enable)
+		write_cmos_sensor(0x0601, 0x02);
 	else
-		write_cmos_sensor(0x0601, 0x00); /*No pattern*/
+		write_cmos_sensor(0x0601, 0x00);
 
 	spin_lock(&imgsensor_drv_lock);
-	imgsensor.test_pattern = modes;
+	imgsensor.test_pattern = enable;
 	spin_unlock(&imgsensor_drv_lock);
 	return ERROR_NONE;
 }
@@ -3547,7 +3537,7 @@ static kal_uint32 open(void)
 	imgsensor.dummy_pixel = 0;
 	imgsensor.dummy_line = 0;
 	imgsensor.hdr_mode = 0;
-	imgsensor.test_pattern = 0;
+	imgsensor.test_pattern = KAL_FALSE;
 	imgsensor.current_fps = imgsensor_info.pre.max_framerate;
 	spin_unlock(&imgsensor_drv_lock);
 
@@ -4079,7 +4069,7 @@ static kal_uint32 get_sensor_temperature(void)
 
 	temperature = read_cmos_sensor(0x013a);
 
-	if (temperature <= 0x4F)
+	if (temperature >= 0x0 && temperature <= 0x4F)
 		temperature_convert = temperature;
 	else if (temperature >= 0x50 && temperature <= 0x7F)
 		temperature_convert = 80;
@@ -4252,8 +4242,7 @@ static kal_uint32 feature_control(MSDK_SENSOR_FEATURE_ENUM feature_id,
 				(kal_uint32) (*(feature_data + 2)));
 		break;
 	case SENSOR_FEATURE_SET_TEST_PATTERN:
-		set_test_pattern_mode((UINT32)*feature_data,
-		(struct SET_SENSOR_PATTERN_SOLID_COLOR *)(uintptr_t)(*(feature_data + 1)));
+		set_test_pattern_mode((BOOL)(*feature_data));
 		break;
 
 	/* for factory mode auto testing */
