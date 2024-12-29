@@ -1,6 +1,14 @@
-// SPDX-License-Identifier: GPL-2.0
 /*
- * Copyright (c) 2019 MediaTek Inc.
+ * Copyright (C) 2015 MediaTek Inc.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
  */
 
 /*****************************************************************************
@@ -2467,13 +2475,14 @@ static kal_uint32 feature_control(MSDK_SENSOR_FEATURE_ENUM feature_id,
 			}
 		} else {
 			ret = sprintf(
-			    feature_para, "configure S5K2L7 as unknown mode");
+			feature_para, "configure S5K2L7 as unknown mode");
 			if (ret < 0) {
 				pr_info("Error! sprintf allocate 0, ret = %d",
 				ret);
 				return ret;
 			}
 		}
+
 		pr_debug("get PDAF type = %d\n", pdaf_sensor_mode);
 		break;
 
